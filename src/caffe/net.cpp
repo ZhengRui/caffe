@@ -593,11 +593,11 @@ Dtype Net<Dtype>::ForwardTo(int end) {
 }
 
 template <typename Dtype>
-const vector<Blob<Dtype>*>& Net<Dtype>::ForwardPrefilled(Dtype* loss) {
+const vector<Blob<Dtype>*>& Net<Dtype>::ForwardPrefilled(Dtype* loss, int endLayerOffset) {
   if (loss != NULL) {
-    *loss = ForwardFromTo(0, layers_.size() - 1);
+    *loss = ForwardFromTo(0, layers_.size() - endLayerOffset - 1);
   } else {
-    ForwardFromTo(0, layers_.size() - 1);
+    ForwardFromTo(0, layers_.size() - endLayerOffset - 1);
   }
   return net_output_blobs_;
 }

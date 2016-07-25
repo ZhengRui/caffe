@@ -11,43 +11,56 @@ using std::vector;
 
 namespace caffe {
 
-class CaffeMobile {
-public:
-  ~CaffeMobile();
+    class CaffeMobile {
+        public:
+            ~CaffeMobile();
 
-  static CaffeMobile *Get();
-  static CaffeMobile *Get(const string &model_path, const string &weights_path);
+            CaffeMobile(const string &model_path, const string &weights_path);
 
-  void SetMean(const string &mean_file);
+            void SetMean(const string &mean_file);
 
-  void SetMean(const vector<float> &mean_values);
+            void SetMean(const vector<float> &mean_values);
 
-  void SetScale(const float scale);
+            void SetScale(const float scale);
 
-  vector<int> PredictTopK(const string &img_path, int k);
+            vector<int> PredictTopK(const string &img_path, int k);
 
-  vector<vector<float>> ExtractFeatures(const string &img_path,
-                                        const string &str_blob_names);
+            vector<vector<float> > ExtractFeatures(const string &img_path,
+                    const string &str_blob_names);
 
-private:
-  static CaffeMobile *caffe_mobile_;
-  static string model_path_;
-  static string weights_path_;
+            vector<vector<float> > ExtractFeaturesCVMat(const cv::Mat &img, const string &blob_names);
 
-  CaffeMobile(const string &model_path, const string &weights_path);
+            vector<vector<float> > ExtractFeaturesCVBatch(const vector<cv::Mat> &imgs, const string &blob_name, int endLayerOffset = 0);
 
-  void Preprocess(const cv::Mat &img, vector<cv::Mat> *input_channels);
+            struct predictWithScore {
+                vector<int> idx;
+                vector<float> scr;
+            };
 
-  void WrapInputLayer(std::vector<cv::Mat> *input_channels);
+            predictWithScore PredictFrameTopK(int width, int height, int front1orback0, int orientCase, unsigned char* frmcData, int k=5);
 
-  vector<float> Forward(const string &filename);
+            predictWithScore PredictJPEGTopK(int front1orback0, int orientCase, unsigned char* jpegcData, int jpegcDataLen, int k=5);
 
-  shared_ptr<Net<float>> net_;
-  cv::Size input_geometry_;
-  int num_channels_;
-  cv::Mat mean_;
-  float scale_;
-};
+        private:
+
+            void Preprocess(const cv::Mat &img, vector<cv::Mat> *input_channels);
+            void PreprocessBatch(const vector<cv::Mat> &imgs, vector<cv::Mat> *input_channels);
+
+            void WrapInputLayer(std::vector<cv::Mat> *input_channels);
+            void WrapInputLayerBatch(std::vector<cv::Mat> *input_channels, int batch_size);
+
+            vector<float> Forward(const string &filename);
+            vector<float> ForwardCVMat(const cv::Mat &img);
+            vector<vector<float> > ForwardCVMatBatch(const vector<cv::Mat> &imgs, int endLayerOffset = 0);
+
+            shared_ptr<Net<float > > net_;
+            cv::Size input_geometry_;
+            int num_channels_;
+            cv::Mat mean_;
+            float scale_;
+
+
+    };
 
 } // namespace caffe
 

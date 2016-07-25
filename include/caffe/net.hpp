@@ -36,7 +36,7 @@ class Net {
    *
    * You can get the input blobs using input_blobs().
    */
-  const vector<Blob<Dtype>*>& ForwardPrefilled(Dtype* loss = NULL);
+  const vector<Blob<Dtype>*>& ForwardPrefilled(Dtype* loss = NULL, int endLayerOffset = 0);
 
   /**
    * The From and To variants of Forward and Backward operate on the
